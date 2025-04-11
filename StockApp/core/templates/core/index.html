@@ -1,0 +1,13 @@
+
+
+
+<form hx-post="/stock-info/" hx-target="#stock-result">
+    {% csrf_token %}
+    <input name="code">
+    <button type="submit">Get Info</button>
+</form>
+<div id="stock-result"></div>
+
+
+<!-- HTMX script -->
+<script src="https://unpkg.com/htmx.org@1.9.2"></script>
