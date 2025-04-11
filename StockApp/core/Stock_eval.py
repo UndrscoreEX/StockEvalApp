@@ -17,14 +17,16 @@ def get_realtime_data(ticker):
         "stock_assets": info.get("totalAssets"), 
     }
 
-
+# get general bio data and get bounce back when the ticker is wrong. 
 def get_fmp_data(ticker):
     base_url = f"https://financialmodelingprep.com/api/v3/"
     endpoints = {
         "income": f"income-statement/{ticker}?limit=10&apikey={FMP_API_KEY}",
         "balance": f"balance-sheet-statement/{ticker}?limit=10&apikey={FMP_API_KEY}",
-        "cashflow": f"cash-flow-statement/{ticker}?limit=10&apikey={FMP_API_KEY}"
+        "cashflow": f"cash-flow-statement/{ticker}?limit=10&apikey={FMP_API_KEY}",
+        "company_info": f"profile/{ticker}?apikey={FMP_API_KEY}"
     }
+
 
     data = {}
     for key, url in endpoints.items():
@@ -34,6 +36,7 @@ def get_fmp_data(ticker):
         else:
             print(f"Failed to get {key} data.")
             data[key] = []
+    print(data.keys())
     return data
 
 
@@ -69,6 +72,12 @@ def discounted_cf(FCF, shares, growth_rate, cash, stock, years=10, discount_rate
     print("\n[DCF Valuation]")
     print(f"Intrinsic Value: ${round(value_per_share, 2)}")
     print(f"30% Margin of Safety: ${round(value_per_share / 1.3, 2)}")
+    return { "Intrinsic Value:" : {round(value_per_share, 2)},
+            "30% Margin of Safety:" :{round(value_per_share / 1.3, 2)},
+            "40% Margin of Safety:" :{round(value_per_share / 1.4, 2)},
+            "50% Margin of Safety:" :{round(value_per_share / 1.5, 2)},
+    }
+
 
 
 def rule1_valuation(eps, growth_rate, future_pe, years=10):
@@ -80,27 +89,42 @@ def rule1_valuation(eps, growth_rate, future_pe, years=10):
     print("\n[Rule #1 Valuation]")
     print(f"Intrinsic Value: ${round(present_value, 2)}")
     print(f"30% Margin of Safety: ${round(present_value / 1.3, 2)}")
+    return { "Intrinsic Value:" : {round(present_value, 2)},
+            "30% Margin of Safety:" :{round(present_value / 1.3, 2)},
+            "40% Margin of Safety:" :{round(present_value / 1.4, 2)},
+            "50% Margin of Safety:" :{round(present_value / 1.5, 2)},
+    }
 
-
-def main(ticker):
+def full_stock_evaluation(ticker):
     print(f"Checking {ticker}...\n")
     realtime = get_realtime_data(ticker)
     fmp = get_fmp_data(ticker)
+    if not fmp.get('company_info') :
+        return False
 
     income = fmp["income"]
     balance = fmp["balance"]
     cashflow = fmp["cashflow"]
-    print(income,'\n',balance,'\n',cashflow,'\n')
+    company_info = {
+        fmp['company_info'][0]["companyName"],
+        fmp['company_info'][0]['country'],
+        fmp['company_info'][0]["industry"],
+        fmp['company_info'][0]["ceo"],
+    }
+    # print(income,'\n',balance,'\n',cashflow,'\n', company_info, '\n')
+    print(company_info, '\n')
 
 
+    #  !!!!!!!!!!!!
     # Get historical metrics. need to get these from quickfs.
     # change this for my own app later on
-    #  
+    #  !!!!!!!!!!!!
 
     revenue = [x['revenue'] for x in income if 'revenue' in x]
     eps = [x['epsdiluted'] for x in income if 'epsdiluted' in x]
     equity = [x['totalStockholdersEquity'] for x in balance if 'totalStockholdersEquity' in x]
     fcf = [x['freeCashFlow'] for x in cashflow if 'freeCashFlow' in x]
+    
 
     print("Checking 10% growth rule...")
     checks = [
@@ -109,16 +133,18 @@ def main(ticker):
         check_growth(equity, "Equity"),
         check_growth(fcf, "Free Cash Flow")
     ]
-
+    thresholdChecks = False
     if all(checks):
         print("✅ Passed all growth checks!")
+        # one day ill add the specific check results but for now its fine as a pass fail. 
+        thresholdChecks = True 
     else:
         print("❌ Failed one or more growth checks.")
         print(f"Revenue : {checks[0]}",'\n')
         print(f"EPS : {checks[1]}",'\n')
         print(f"Equity : {checks[2]}",'\n')
         print(f"Free Cash Flow : {checks[3]}",'\n')
-        
+        thresholdChecks = checks
 
 
     # Run valuations
@@ -135,7 +161,7 @@ def main(ticker):
         realtime['cash'],
         realtime['stock_assets'],
         )
-    discounted_cf(
+    DCF_output = discounted_cf(
         FCF=FCF,
         shares=realtime['shares_outstanding'],
         growth_rate=dcf_growth_estimate,
@@ -143,14 +169,21 @@ def main(ticker):
         stock= realtime['stock_assets'] or 0 
     )
 
-    rule1_valuation(
+    rule1_output = rule1_valuation(
         eps=realtime['ttm_eps'],
         growth_rate=rule1_growth,
         future_pe=future_pe
     )
 
+    # do something with thresholdchecks. 
+    return {
+        'company_info': company_info,
+        "thresholdChecks" : thresholdChecks,
+        "DCFOutput" : DCF_output,
+        "rule1Output" : rule1_output, 
+    }
 
-if __name__ == "__main__":
-    main("AAPL")
+
+# fullStockEvaluation("AAPL")
 
 # just checking if the code works individually before applying to web app
