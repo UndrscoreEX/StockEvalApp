@@ -1,11 +1,13 @@
 import yfinance as yf
 import requests
-# import math
+import time
 import os
+# add the current stock price
 
 FMP_API_KEY = os.getenv("FMP_API_KEY")
 
 def get_realtime_data(ticker):
+    
     stock = yf.Ticker(ticker)
     info = stock.info
 
@@ -17,9 +19,10 @@ def get_realtime_data(ticker):
         "stock_assets": info.get("totalAssets"), 
     }
 
-# get general bio data and get bounce back when the ticker is wrong. 
+# get general bio data and get bounce back when the ticker is wrong. figure out how the api fails
 def get_fmp_data(ticker):
     base_url = f"https://financialmodelingprep.com/api/v3/"
+
     endpoints = {
         "income": f"income-statement/{ticker}?limit=10&apikey={FMP_API_KEY}",
         "balance": f"balance-sheet-statement/{ticker}?limit=10&apikey={FMP_API_KEY}",
@@ -27,15 +30,26 @@ def get_fmp_data(ticker):
         "company_info": f"profile/{ticker}?apikey={FMP_API_KEY}"
     }
 
-
     data = {}
     for key, url in endpoints.items():
         res = requests.get(base_url + url)
+
         if res.status_code == 200:
             data[key] = res.json()
+        elif res.status_code == 429:  
+            print(f"API rate limit reached for {key}. Retrying in 60 seconds...")
+            # Sleep for 60 seconds before retrying
+            time.sleep(60)  
+            res = requests.get(base_url + url)  
+            if res.status_code == 200:
+                data[key] = res.json()
+            else:
+                print(f"Failed to get {key} data after retry.")
+                data[key] = []  
         else:
-            print(f"Failed to get {key} data.")
-            data[key] = []
+            print(f"Failed to get {key} data. HTTP Status Code: {res.status_code}")
+            data[key] = [] 
+
     print(data.keys())
     return data
 
@@ -127,23 +141,23 @@ def full_stock_evaluation(ticker):
     
 
     print("Checking 10% growth rule...")
-    checks = [
-        check_growth(revenue, "Revenue"),
-        check_growth(eps, "EPS"),
-        check_growth(equity, "Equity"),
-        check_growth(fcf, "Free Cash Flow")
-    ]
+    checks = {
+        "Revenue": check_growth(revenue, "Revenue"),
+        "EPS": check_growth(eps, "EPS"),
+        "Equity": check_growth(equity, "Equity"),
+        "Free Cash Flow" :check_growth(fcf, "Free Cash Flow")
+    }
     thresholdChecks = False
-    if all(checks):
+    if all(list(checks.values())):
         print("✅ Passed all growth checks!")
         # one day ill add the specific check results but for now its fine as a pass fail. 
         thresholdChecks = True 
     else:
         print("❌ Failed one or more growth checks.")
-        print(f"Revenue : {checks[0]}",'\n')
-        print(f"EPS : {checks[1]}",'\n')
-        print(f"Equity : {checks[2]}",'\n')
-        print(f"Free Cash Flow : {checks[3]}",'\n')
+        print(f"Revenue : {checks.get('Revenue')}\n")
+        print(f"EPS : {checks.get('EPS')}\n")
+        print(f"Equity : {checks.get('Equity')}\n")
+        print(f"Free Cash Flow : {checks.get('Free Cash Flow')}\n")
         thresholdChecks = checks
 
 

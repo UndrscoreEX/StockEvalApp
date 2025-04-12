@@ -12,4 +12,5 @@ def stock_info(request):
     code = request.POST.get("code")
     # data = get_stock_info(code)
     data = full_stock_evaluation(code)
+    print(data)
     return render(request, "core/_stock_result.html", {"data": data})

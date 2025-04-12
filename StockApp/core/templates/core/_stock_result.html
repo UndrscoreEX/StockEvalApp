@@ -1,2 +1,51 @@
 <h3>Stock Info</h3>
-<p>Price: {{ data }}</p>
+<div class="stock-summary" style="font-family: sans-serif; max-width: 600px; padding: 1em; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    {% if data.company_info %}
+  <h2>Company Info</h2>
+  <ul>
+    {% for item in data.company_info %}
+      <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if data.thresholdChecks %}
+  <h2>Threshold Checks</h2>
+  <!-- need to add the values that it passed/failed -->
+  <ul>
+    {% for name, passed in data.thresholdChecks.items %}
+    <li>
+        <strong>{{ name }}</strong>:
+        {% if passed %}
+            ✅ Passed
+        {% else %}
+             ❌ Failed
+        {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if data.DCFOutput %}
+  <h2>Discounted Cash Flow (DCF) Output</h2>
+  <ul>
+    {% for label, value_set in data.DCFOutput.items %}
+    <li><strong>{{ label }}</strong> 
+        {% for v in value_set %}${{ v }}{% endfor %}
+      </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if data.rule1Output %}
+  <h2>Rule #1 Valuation Output</h2>
+  <ul>
+    {% for label, value_set in data.rule1Output.items %}
+    <li><strong>{{ label }}</strong> 
+        {% for v in value_set %}${{ v }}{% endfor %}
+      </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  </div>
+  
