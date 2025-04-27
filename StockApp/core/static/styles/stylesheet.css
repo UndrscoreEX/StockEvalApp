@@ -120,13 +120,55 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
+    h3 {
+      font-size: 2em;
+    }
+    .tooltip {
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+    }
+    
+    .tooltip-text {
+      visibility: hidden;
+      width: 20em;
+      background-color: #333;
+      text-align: center;
+      border-radius: 6px;
+      padding: 8px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%; 
+      left: 50%;
+      
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tooltip-text ul {
+      padding: 0;
+      margin: 0;
+    }
+    
+    .tooltip-text li {
+      color: #333; /* white text */
+      text-align: left; /* optional, looks better sometimes */
+      margin-bottom: 0.5em; /* optional, spacing between items */
+    }
+    .tooltip-text p {
+      color: #fff;
+
+    }
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }   
+  
   /* Responsive Styles */
   @media (max-width: 768px) {
     form, .stock-summary {
       width: 90%;
       padding: 1.5em;
     }
-  
-    h3 {
-      font-size: 2em;
-    }
+
+  }

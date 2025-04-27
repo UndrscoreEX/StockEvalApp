@@ -59,7 +59,8 @@ def check_growth(metric_list, label):
     if growth is not None:
         percent = round(growth * 100, 2)
         print(f"{label} CAGR: {percent}%")
-        return percent >= 10
+        return f"✅ : {round(percent,1)}%" if percent>10 else f"❌ : {round(percent,1)}%"
+        # return percent >= 10
     else:
         print(f"Invalid {label} data.")
         return False
@@ -119,19 +120,12 @@ def full_stock_evaluation(ticker, api_key):
     fcf = [x['freeCashFlow'] for x in cashflow if 'freeCashFlow' in x]
 
     print("Checking 10% growth rule...")
-    checks = {
+    thresholdChecks = {
         "Revenue": check_growth(revenue, "Revenue"),
         "EPS": check_growth(eps, "EPS"),
         "Equity": check_growth(equity, "Equity"),
         "Free Cash Flow": check_growth(fcf, "Free Cash Flow")
     }
-    thresholdChecks = False
-    if all(list(checks.values())):
-        print("✅ Passed all growth checks!")
-        thresholdChecks = True 
-    else:
-        print("❌ Failed one or more growth checks.")
-        thresholdChecks = checks
 
     # Run valuations
     FCF = fcf[0] if fcf else 0

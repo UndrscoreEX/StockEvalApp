@@ -13,27 +13,118 @@
   </ul>
 {% endif %}
 
-
+<br>
+<br>
 
     {% if data.thresholdChecks %}
     <h2>Threshold Checks</h2>
     <ul>
-        {% for name, passed in data.thresholdChecks.items %}
-        <li>
-            <strong>{{ name }}</strong>
-            <!-- add the value of the threshold just in case -->
-             <!-- +++++++++++++++++++++++ -->
-            {% if passed %}
-                ✅
-            {% else %}
-                ❌
-            {% endif %}
-        </li>
-        {% endfor %}
+        {% for name, percent in data.thresholdChecks.items %}
+        
+          {% if name == "Revenue" %}
+          <li>
+            <strong>
+            <span class="tooltip">
+                {{ name }}
+                <div class="tooltip-text">
+                  <p>Increase in {{name}} suggests:</p>
+                  <ul>
+                    <li>New product launches</li>
+                    <li>Growth in demand</li>
+                    <li>Price increases</li>
+                  </ul>
+                  
+                  <p>Decrease in {{name}} suggests:</p>
+                  <ul>
+                    <li>Product saturation</li>
+                    <li>Global economic slowdown</li>
+                    <li>Increased competition</li>
+                  </ul>
+                </div>
+              </span>
+            </strong>
+              {{percent}} 
+          </li>
+          {% elif name == "Equity" %}
+          <li>
+            <strong>
+              <span class="tooltip">
+                  {{ name }}
+                  <div class="tooltip-text">
+                    <p>Increase in {{name}} suggests:</p>
+                    <ul>
+                      <li>Retained earnings growth </li>
+                      <li>New share issuance </li>
+                      <li>Asset appreciation</li>
+                    </ul>
+                    
+                    <p>Decrease in {{name}} suggests:</p>
+                    <ul>
+                      <li>Share buybacks </li>
+                      <li>Large dividends </li>
+                      <li>Losses or write-downs </li>
+                    </ul>
+                  </div>
+                </span>
+              </strong>
+              {{percent}} 
+          </li>
+          {% elif name == "Free Cash Flow" %}
+          <li>
+            <strong>
+              <span class="tooltip">
+                  {{ name }}
+                  <div class="tooltip-text">
+                    <p>Increase in {{name}} suggests:</p>
+                    <ul>
+                      <li>Higher profit margins </li>
+                      <li>Low capital expenditures </li>
+                      <li>Services expansion </li>
+                    </ul>
+                    
+                    <p>Decrease in {{name}} suggests:</p>
+                    <ul>
+                      <li>Supply chain issues  </li>
+                      <li>Massive investments</li>
+                      <li>Regulatory fines or lawsuits</li>
+                    </ul>
+                  </div>
+                </span>
+              </strong>
+              {{percent}} 
+          </li>
+          {% elif name == "EPS" %}
+          <li>
+            <strong>
+              <span class="tooltip">
+                  {{ name }}
+                  <div class="tooltip-text">
+                    <p>Increase in {{name}} suggests:</p>
+                    <ul>
+                      <li>Net income growth </li>
+                      <li>Share buybacks </li>
+                      <li>Cost efficiencies </li>
+                    </ul>
+                    
+                    <p>Decrease in {{name}} suggests:</p>
+                    <ul>
+                      <li>Revenue decline </li>
+                      <li>Margin pressure </li>
+                      <li>Higher interest rates </li>
+                    </ul>
+                  </div>
+                </span>
+              </strong>
+              {{percent}} 
+          </li>
+          {% endif %}
+
+          {% endfor %}
     </ul>
     {% endif %}
 
     {% if data.DCFOutput %}
+    <br>
     <h2>Discounted Cash Flow (DCF) Output</h2>
     <ul>
         {% for label, value_set in data.DCFOutput.items %}
@@ -52,6 +143,7 @@
 
     {% if data.rule1Output %}
     <h2>Rule #1 Valuation Output</h2>
+    <br>
     <ul>
         {% for label, value_set in data.rule1Output.items %}
         <li><strong>{{ label }}</strong> 
