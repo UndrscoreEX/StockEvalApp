@@ -8,9 +8,10 @@ def index(request):
     return render(request, "core/index.html")
 
 def stock_info(request):
-    
-    code = request.POST.get("code")
-    # data = get_stock_info(code)
-    data = full_stock_evaluation(code)
+    api_key = request.POST.get('api_key')  
+    stock_code = request.POST.get('code')  
+    data = full_stock_evaluation(stock_code, api_key)
+    print(api_key)
     print(data)
     return render(request, "core/_stock_result.html", {"data": data})
+

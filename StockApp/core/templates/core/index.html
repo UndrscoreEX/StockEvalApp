@@ -1,36 +1,29 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html>
 <head>
   <title>Stock Info</title>
-  <style>
-    #loading-spinner {
-      display: none;
-      text-align: center;
-      margin: 1em 0;
-    }
-    .spinner {
-      width: 24px;
-      height: 24px;
-      border: 3px solid #ccc;
-      border-top-color: #333;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      display: inline-block;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
+  <link rel="stylesheet" href="{% static 'styles/stylesheet.css' %}">
+
+
 </head>
+
 <body>
 
 <form 
   hx-post="/stock-info/"
   hx-target="#stock-result"
   hx-indicator="#loading-spinner"
+  id="stock-form"
 >
   {% csrf_token %}
+  
+  <input name="api_key" id="api_key" placeholder="Enter your API Key">
+  <br><br>
+  
   <input name="code" placeholder="Enter stock code (e.g. AAPL)">
+  
   <button type="submit">Get Info</button>
 </form>
 
@@ -42,13 +35,26 @@
 
 <script src="https://unpkg.com/htmx.org@1.9.2"></script>
 
-</body>
 <script>
-    document.body.addEventListener("htmx:beforeRequest", function(evt) {
-      document.querySelector("#stock-result").innerHTML = "";
-    });
-  </script>
+  // Load API key from localStorage (if it exists)
+  document.addEventListener("DOMContentLoaded", function() {
+    const savedKey = localStorage.getItem("api_key");
+    if (savedKey) {
+      document.getElementById("api_key").value = savedKey;
+    }
+  });
 
+  // Save API key to localStorage when the form is submitted
+  document.getElementById("stock-form").addEventListener("submit", function() {
+    const apiKey = document.getElementById("api_key").value;
+    localStorage.setItem("api_key", apiKey);
+  });
 
-  
+  // Clear previous results when starting a new request
+  document.body.addEventListener("htmx:beforeRequest", function(evt) {
+    document.querySelector("#stock-result").innerHTML = "";
+  });
+</script>
+
+</body>
 </html>
