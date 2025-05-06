@@ -2,18 +2,6 @@ import yfinance as yf
 import requests
 import time
 
-# if i get the better api sub
-# def inside_trades_red_flag(insider_summary):
-#     sales = insider_summary.get("recent_sales", 0)
-#     purchases = insider_summary.get("recent_purchases", 0)
-#     if not sales or not purchases :
-#         print('cant get inside trade data')
-#         return None
-#     if sales > 10 and (purchases == 0 or sales / max(purchases, 1) > 3):
-#         return f"✅ : Sales vs Purchases : {sales} / {purchases}"
-    
-#     return f"❌ : Sales vs Purchases : {sales} / {purchases}"
-
 def get_realtime_data(ticker):
     stock = yf.Ticker(ticker)
     info = stock.info
@@ -32,8 +20,6 @@ def get_fmp_data(ticker, api_key):
         "balance": f"balance-sheet-statement/{ticker}?limit=10&apikey={api_key}",
         "cashflow": f"cash-flow-statement/{ticker}?limit=10&apikey={api_key}",
         "company_info": f"profile/{ticker}?apikey={api_key}",
-        # if i get a premium api sub: 
-        # "insider_trading": f"https://financialmodelingprep.com/api/v4/insider-trading?symbol={ticker}&limit=100&apikey={api_key}"
     }
 
     data = {}
@@ -160,8 +146,6 @@ def full_stock_evaluation(ticker, api_key):
         growth_rate=rule1_growth,
         future_pe=future_pe
     )
-    # if i get a premium api sub: 
-    # red_flag = inside_trades_red_flag(fmp["insider_trading"])
 
 
     return {
@@ -170,6 +154,4 @@ def full_stock_evaluation(ticker, api_key):
         "DCFOutput": DCF_output,
         "rule1Output": rule1_output,
         'current_price': current_price,
-        #### if i get a premium api sub: 
-        # 'red_flag' : red_flag
     }
