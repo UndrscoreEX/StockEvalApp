@@ -21,7 +21,7 @@ def get_fmp_data(ticker, api_key):
         "cashflow": f"cash-flow-statement/{ticker}?limit=10&apikey={api_key}",
         "company_info": f"profile/{ticker}?apikey={api_key}",
     }
-
+    
     data = {}
     for key, url in endpoints.items():
         res = requests.get(base_url + url)
